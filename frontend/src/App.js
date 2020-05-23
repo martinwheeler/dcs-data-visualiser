@@ -21,31 +21,55 @@ class App extends Component {
     labels: [],
     datasets: [
       {
-        label: "X",
+        label: "Pitch",
         fill: false,
         lineTension: 1,
-        borderColor: "rgba(2,43,56,1)",
+        borderColor: "rgb(0,0,0)",
         borderWidth: 2,
         data: [],
       },
       {
-        label: "Y",
+        label: "Bank",
         fill: false,
         lineTension: 25,
-        borderColor: "rgba(123,43,54,1)",
+        borderColor: "rgb(235, 161, 2)",
         borderWidth: 2,
         data: [],
       },
       {
-        label: "Z",
+        label: "Yaw",
         fill: false,
         lineTension: 0.1,
-        borderColor: "rgba(1,255,34,1)",
+        borderColor: "rgb(67, 181, 25)",
+        borderWidth: 2,
+        data: [],
+      },
+      {
+        label: "PitchRate",
+        fill: false,
+        lineTension: 0.1,
+        borderColor: "rgb(50, 117, 168)",
+        borderWidth: 2,
+        data: [],
+      },
+      {
+        label: "BankRate",
+        fill: false,
+        lineTension: 0.1,
+        borderColor: "rgb(139, 50, 168)",
+        borderWidth: 2,
+        data: [],
+      },
+      {
+        label: "YawRate",
+        fill: false,
+        lineTension: 0.1,
+        borderColor: "rgb(199, 22, 22)",
         borderWidth: 2,
         data: [],
       },
     ],
-    shouldPoll: false,
+    shouldPoll: true,
   };
 
   componentDidMount() {
@@ -65,34 +89,58 @@ class App extends Component {
           const newLabels = newData.reduce((result, nextData) => {
             return [
               ...result,
-              dayjs(nextData.timestamp).format("hh:mm:ss:SSS"),
+              dayjs(nextData.timestamp).format("mm:ss:SSS"),
             ];
           }, labels);
 
-          const newXDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.x];
+          const newPitchDataset = newData.reduce((result, nextData) => {
+            return [...result, nextData.data.pitch];
           }, datasets[0].data);
 
-          const newYDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.y];
+          const newBankDataset = newData.reduce((result, nextData) => {
+            return [...result, nextData.data.bank];
           }, datasets[1].data);
 
-          const newZDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.z];
+          const newYawDataset = newData.reduce((result, nextData) => {
+            return [...result, nextData.data.yaw];
           }, datasets[2].data);
+
+          const newPitchRateDataset = newData.reduce((result, nextData) => {
+            return [...result, nextData.data.pitchRate];
+          }, datasets[3].data);
+
+          const newBankRateDataset = newData.reduce((result, nextData) => {
+            return [...result, nextData.data.bankRate];
+          }, datasets[4].data);
+
+          const newYawRateDataset = newData.reduce((result, nextData) => {
+            return [...result, nextData.data.yawRate];
+          }, datasets[5].data);
 
           const newDatasets = [
             {
               ...datasets[0],
-              data: newXDataset,
+              data: newPitchDataset,
             },
             {
               ...datasets[1],
-              data: newYDataset,
+              data: newBankDataset,
             },
             {
               ...datasets[2],
-              data: newZDataset,
+              data: newYawDataset,
+            },
+            {
+              ...datasets[3],
+              data: newPitchRateDataset,
+            },
+            {
+              ...datasets[4],
+              data: newBankRateDataset,
+            },
+            {
+              ...datasets[5],
+              data: newYawRateDataset,
             },
           ];
 
@@ -107,7 +155,7 @@ class App extends Component {
 
     return (
       <div className="App">
-        Status: <span>{shouldPoll ? "Running" : "Paused"}</span>
+        <div style={{ position: 'absolute', top: 0, left: 0}}>Status: <span>{shouldPoll ? "Running" : "Paused"}</span></div>
         <Line
           data={this.state}
           options={{
