@@ -134,7 +134,6 @@ class App extends Component {
 
     return (
       <div className="App">
-        <div style={{ position: 'absolute', top: 0, left: 0 }}>Status: <span>{shouldPoll ? "Running" : "Paused"}</span></div>
         <Line
           data={this.state}
           options={{
@@ -143,7 +142,7 @@ class App extends Component {
             responsiveAnimationDuration: 0,
             title: {
               display: true,
-              text: "DCS Jet Positioning",
+              text: `DCS Jet Positioning - ${shouldPoll ? "Running" : "Paused"}`,
               fontSize: 20,
             },
             legend: {
@@ -155,6 +154,7 @@ class App extends Component {
             }
           }}
         />
+        <div>Press Space to pause or resume fetching more results.</div>
       </div>
     );
   }
