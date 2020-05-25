@@ -16,12 +16,9 @@ server.on("error", function (error) {
 
 // emits on new datagram msg
 server.on("message", function (msg, info) {
-  const currentData = DataStorage.data;
-  const newData = {
-    timestamp: Date.now(),
-    data: JSON.parse(msg.toString()),
-  };
-  DataStorage.data = currentData.concat(newData);
+  const newData = JSON.parse(msg.toString());
+  newData.timestamp = Date.now();
+  DataStorage.data.push(newData);
 });
 
 //emits when socket is ready and listening for datagram msgs

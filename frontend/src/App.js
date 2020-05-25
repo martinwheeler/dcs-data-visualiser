@@ -1,12 +1,7 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 
 import { Line } from "react-chartjs-2";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-
-dayjs.extend(relativeTime);
 
 const getData = () => {
   return fetch("http://localhost:3000/data").then((response) =>
@@ -87,36 +82,19 @@ class App extends Component {
         getData().then((newData) => {
           console.log('Data Length: ', newData.length);
 
-          const newLabels = newData.reduce((result, nextData) => {
-            return [
+          const newLabels = labels.concat(newData.map(data => data.timestamp));
+
+          const { newPitchDataset, newRollDataset, newYawDataset, newPitchRateDataset, newRollRateDataset, newYawRateDataset } = newData.reduce((result, nextData) => {
+            return {
               ...result,
-              nextData.timestamp
-            ];
-          }, labels);
-
-          const newPitchDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.pitch];
-          }, datasets[0].data);
-
-          const newBankDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.roll];
-          }, datasets[1].data);
-
-          const newYawDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.yaw];
-          }, datasets[2].data);
-
-          const newPitchRateDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.pitchRate];
-          }, datasets[3].data);
-
-          const newBankRateDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.rollRate];
-          }, datasets[4].data);
-
-          const newYawRateDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.yawRate];
-          }, datasets[5].data);
+              newPitchDataset: [...result.newPitchDataset, nextData.pitch],
+              newRollDataset: [...result.newRollDataset, nextData.roll],
+              newYawDataset: [...result.newYawDataset, nextData.yaw],
+              newPitchRateDataset: [...result.newPitchRateDataset, nextData.pitchRate],
+              newRollRateDataset: [...result.newRollRateDataset, nextData.rollRate],
+              newYawRateDataset: [...result.newYawRateDataset, nextData.yawRate],
+            };
+          }, { newPitchDataset: datasets[0].data, newRollDataset: datasets[1].data, newYawDataset: datasets[2].data, newPitchRateDataset: datasets[3].data, newRollRateDataset: datasets[4].data, newYawRateDataset: datasets[5].data });
 
           const newDatasets = [
             {
@@ -125,7 +103,7 @@ class App extends Component {
             },
             {
               ...datasets[1],
-              data: newBankDataset,
+              data: newRollDataset,
             },
             {
               ...datasets[2],
@@ -137,7 +115,7 @@ class App extends Component {
             },
             {
               ...datasets[4],
-              data: newBankRateDataset,
+              data: newRollRateDataset,
             },
             {
               ...datasets[5],
@@ -156,7 +134,7 @@ class App extends Component {
 
     return (
       <div className="App">
-        <div style={{ position: 'absolute', top: 0, left: 0}}>Status: <span>{shouldPoll ? "Running" : "Paused"}</span></div>
+        <div style={{ position: 'absolute', top: 0, left: 0 }}>Status: <span>{shouldPoll ? "Running" : "Paused"}</span></div>
         <Line
           data={this.state}
           options={{
@@ -173,7 +151,7 @@ class App extends Component {
               position: "right",
             },
             scales: {
-              xAxes: [ { type: "time", time: { unit: "millisecond", stepSize: 1000 }, distribution: "series", ticks: { minRotation: 1000, maxRotation: 1000 } } ]
+              xAxes: [{ type: "time", time: { unit: "millisecond", stepSize: 1000 }, distribution: "series", ticks: { minRotation: 1000, maxRotation: 1000 } }]
             }
           }}
         />
