@@ -14,7 +14,7 @@ const getData = () => {
   );
 };
 
-const POLL_TIMEOUT = 50;
+const POLL_TIMEOUT = 1000;
 
 class App extends Component {
   state = {
@@ -29,7 +29,7 @@ class App extends Component {
         data: [],
       },
       {
-        label: "Bank",
+        label: "Roll",
         fill: false,
         lineTension: 25,
         borderColor: "rgb(235, 161, 2)",
@@ -53,7 +53,7 @@ class App extends Component {
         data: [],
       },
       {
-        label: "BankRate",
+        label: "RollRate",
         fill: false,
         lineTension: 0.1,
         borderColor: "rgb(139, 50, 168)",
@@ -74,7 +74,6 @@ class App extends Component {
 
   componentDidMount() {
     document.addEventListener("keypress", (e) => {
-      console.log(e);
       // Space
       if (e.which === 32) {
         this.setState({ shouldPoll: !this.state.shouldPoll });
@@ -86,10 +85,12 @@ class App extends Component {
 
       if (shouldPoll) {
         getData().then((newData) => {
+          console.log('Data Length: ', newData.length);
+
           const newLabels = newData.reduce((result, nextData) => {
             return [
               ...result,
-              dayjs(nextData.timestamp).format("mm:ss:SSS"),
+              nextData.timestamp
             ];
           }, labels);
 
@@ -98,7 +99,7 @@ class App extends Component {
           }, datasets[0].data);
 
           const newBankDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.bank];
+            return [...result, nextData.data.roll];
           }, datasets[1].data);
 
           const newYawDataset = newData.reduce((result, nextData) => {
@@ -110,7 +111,7 @@ class App extends Component {
           }, datasets[3].data);
 
           const newBankRateDataset = newData.reduce((result, nextData) => {
-            return [...result, nextData.data.bankRate];
+            return [...result, nextData.data.rollRate];
           }, datasets[4].data);
 
           const newYawRateDataset = newData.reduce((result, nextData) => {
@@ -159,6 +160,9 @@ class App extends Component {
         <Line
           data={this.state}
           options={{
+            animation: { duration: 0 },
+            hover: { animationDuration: 0 },
+            responsiveAnimationDuration: 0,
             title: {
               display: true,
               text: "DCS Jet Positioning",
@@ -168,6 +172,9 @@ class App extends Component {
               display: true,
               position: "right",
             },
+            scales: {
+              xAxes: [ { type: "time", time: { unit: "millisecond", stepSize: 1000 }, distribution: "series", ticks: { minRotation: 1000, maxRotation: 1000 } } ]
+            }
           }}
         />
       </div>

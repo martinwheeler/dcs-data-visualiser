@@ -23,7 +23,6 @@ server.on("message", function (msg, info) {
   const mergedData = [...currentData, newData];
 
   localStorage.setItem("data", JSON.stringify(mergedData));
-  console.log("Data: ", JSON.parse(localStorage.getItem("data")));
 });
 
 //emits when socket is ready and listening for datagram msgs
