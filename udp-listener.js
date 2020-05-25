@@ -1,6 +1,7 @@
 var udp = require("dgram");
 const LocalStorage = require("node-localstorage").LocalStorage;
 const localStorage = new LocalStorage("./local-storage-data");
+const DataStorage = require('./data-storage')
 
 // --------------------creating a udp server --------------------
 
@@ -15,14 +16,12 @@ server.on("error", function (error) {
 
 // emits on new datagram msg
 server.on("message", function (msg, info) {
-  const currentData = JSON.parse(localStorage.getItem("data")) || [];
+  const currentData = DataStorage.data;
   const newData = {
     timestamp: Date.now(),
     data: JSON.parse(msg.toString()),
   };
-  const mergedData = [...currentData, newData];
-
-  localStorage.setItem("data", JSON.stringify(mergedData));
+  DataStorage.data = currentData.concat(newData);
 });
 
 //emits when socket is ready and listening for datagram msgs
@@ -31,7 +30,8 @@ server.on("listening", function () {
   var port = address.port;
   var ipaddr = address.address;
 
-  console.log(`Server is running on: ${ipaddr}:${port}`);
+  console.log(`DCS data capture is running.`);
+  console.log(`IP:PORT - ${ipaddr}:${port}`);
 });
 
 server.bind(41230);
