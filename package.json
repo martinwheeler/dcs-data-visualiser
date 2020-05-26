@@ -7,7 +7,7 @@
     "start:app": "cd frontend && PORT=3001 npm start",
     "start:server": "nodemon ./bin/www",
     "start": "stmux -w always -e ERROR -m beep,system -- [ 'npm run start:server' : 'npm run start:app' ]",
-    "build": "npm run install:all && npm run build",
+    "build": "cd frontend && npm run build",
     "serve": "npm run build && stmux -w always -e ERROR -m beep,system -- [ 'npm run start:server' : 'http-server frontend/build' ]"
   },
   "dependencies": {
