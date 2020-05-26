@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "install:all": "npm install && cd frontend && npm install",
     "start:app": "cd frontend && PORT=3001 npm start",
     "start:server": "nodemon ./bin/www",
     "start": "stmux -w always -e ERROR -m beep,system -- [ 'npm run start:server' : 'npm run start:app' ]",
-    "build": "cd frontend && npm run build",
-    "run:build": "stmux -w always -e ERROR -m beep,system -- [ 'npm run start:server' : 'http-server frontend/build' ]"
+    "build": "npm run install:all && npm run build",
+    "serve": "npm run build && stmux -w always -e ERROR -m beep,system -- [ 'npm run start:server' : 'http-server frontend/build' ]"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
