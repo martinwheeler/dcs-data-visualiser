@@ -1,6 +1,5 @@
 var udp = require("dgram");
-const LocalStorage = require("node-localstorage").LocalStorage;
-const localStorage = new LocalStorage("./local-storage-data");
+const fs = require('fs')
 const DataStorage = require('./data-storage')
 
 // --------------------creating a udp server --------------------
@@ -14,10 +13,30 @@ server.on("error", function (error) {
   server.close();
 });
 
+
+const getCurrentDate = () => {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yyyy = today.getFullYear();
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+const currentDate = getCurrentDate();
+var fileStream = fs.createWriteStream(`./saved-logs/${currentDate}.csv`, { flags:'a' });
+
+const saveDataToFile = (newData) => {
+  const dataInCSVFormat = Object.keys(newData).map(key => {
+    return newData[key];
+  })
+  fileStream.write(`${JSON.stringify(dataInCSVFormat.join(', '))}\r\n`);
+}
+
 // emits on new datagram msg
 server.on("message", function (msg, info) {
   const newData = JSON.parse(msg.toString());
   newData.timestamp = Date.now();
+  saveDataToFile(newData);
   DataStorage.data.push(newData);
 });
 
