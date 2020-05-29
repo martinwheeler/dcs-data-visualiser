@@ -9,7 +9,7 @@
     "start": "stmux --mouse -w always -e ERROR -m beep,system -- [ 'npm run start:server' : 'npm run start:app' ]",
     "build": "cd frontend && npm run build",
     "serve": "npm run build && stmux -w always -e ERROR -m beep,system -- [ 'npm run start:server' : 'http-server frontend/build' ]",
-    "update": "node support/check-update.js"
+    "update": "node check-update.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
