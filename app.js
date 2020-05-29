@@ -11,9 +11,6 @@ const DataStorage = require('./data-storage')
 var app = express();
 app.use(cors());
 
-const LocalStorage = require("node-localstorage").LocalStorage;
-const localStorage = new LocalStorage("./local-storage-data");
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

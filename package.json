@@ -23,7 +23,6 @@
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
     "node-fetch": "^2.6.0",
-    "node-localstorage": "^2.1.6",
     "nodemon": "^2.0.4",
     "semver": "^7.3.2",
     "stmux": "^1.8.0"
