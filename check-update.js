@@ -26,8 +26,9 @@ const handleUpdate = async (latestRelease) => {
         const downloadPath = await gitly.fetch(`martinwheeler/dcs-data-visualiser#${latestReleaseVersion}`, { cache: false });
         console.log('Download finished:', downloadPath);
         console.log('Preparing for extraction.');
-        await gitly.extract(downloadPath, path.resolve(__dirname, '..'));
-        console.log('Extraction finished. Installing new dependencies.');
+        const extractPath = await gitly.extract(downloadPath, path.resolve(__dirname));
+        console.log('Extraction finished:', extractPath);
+        console.log('Installing new dependencies.');
         myExec('start powershell -command "& npm run install:all; exit"');
         console.log('Update completed.');
         console.log('Booting app.');
