@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const packageJson = require('../package.json');
 const semver = require('semver');
 const path = require('path');
-// import { fetch, extract } = from 'gitly'
+const {exec} = require('child_process');
 const gitly = require('gitly');
 
 const handleUpdate = async (latestRelease) => {
@@ -13,9 +13,11 @@ const handleUpdate = async (latestRelease) => {
         console.log(`Downloading a new version: ${latestReleaseVersion}`);
         const downloadPath = await gitly.fetch('martinwheeler/dcs-data-visualiser');
         gitly.extract(downloadPath, path.resolve(__dirname, '..'));
-        console.log('Update completed. Please run `install.ps1` before running `start.ps1` again.');
+        console.log('Update completed.');
+        exec('npm run install:all && npm run serve');
     } else {
         console.log('Already on the latest version.');
+        exec('npm run serve');
     }
 }
 
