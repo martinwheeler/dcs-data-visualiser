@@ -1,7 +1,6 @@
 ---------------------------------------------------------------------------------------------------
--- Export plugin for SimTools V3
+-- Export plugin for DCS Data Visualiser
 -- Version 1.0
--- Export start
 ---------------------------------------------------------------------------------------------------
 
 SimToolsExporter = {
@@ -13,16 +12,11 @@ SimToolsExporter = {
         my_init =
             socket.protect(
             function()
-                -- export telemetry to SimTools
                 host1 = host1 or "127.0.0.1" -- Communicate with host1 or the local computer
                 port1 = port1 or 41230 -- Use port UDP 41230 to send data to
                 c = socket.udp()
                 c:settimeout(0)
                 c:setpeername(host1, port1)
-                --		c:send ( "Hello Wolrd!" )
-                --		c1 = socket.try(socket.connect(host1, port1)) -- connect to the listener socket
-                --		c1:setoption("tcp-nodelay",true) -- set immediate transmission mode
-                --		c1:settimeout(.01)
             end
         )
         my_init()
@@ -32,18 +26,10 @@ SimToolsExporter = {
         local pitch, bank, yaw = LoGetADIPitchBankYaw()
         local angular_speed = LoGetAngularVelocity()
 
-        -- reduce forces on ground
-        -- if altRad < 3 then
-        --	accel.x = accel.x * 0.25
-        --	accel.y = accel.y * 0.25
-        --	accel.z = accel.z * 0.25
-        -- end
-
         my_send =
             socket.protect(
             function()
                 if c then
-                    --			socket.try(c1:send(string.format("%.3f; %.3f; %.3f; %.3f; %.3f; %.3f;\n", pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, accel.y*1000.0, accel.z*1000.0)))
                     socket.try(
                         c:send(
                             string.format(
