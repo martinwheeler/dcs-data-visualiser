@@ -10,11 +10,12 @@ const handleUpdate = async (latestRelease) => {
     const latestReleaseVersion = latestRelease.tag_name;
 
     if (shouldUpdate(currentVersion, latestReleaseVersion)) {
-        // TODO: Download new ZIP
+        console.log(`Downloading a new version: ${latestReleaseVersion}`);
         const downloadPath = await gitly.fetch('martinwheeler/dcs-data-visualiser');
-        console.log('DL PATH: ', downloadPath)
-
         gitly.extract(downloadPath, path.resolve(__dirname, '..'));
+        console.log('Update completed. Please run `install.ps1` before running `start.ps1` again.');
+    } else {
+        console.log('Already on the latest version.');
     }
 }
 
@@ -22,4 +23,5 @@ const shouldUpdate = (currentVersion, latestReleaseVersion) => {
     return semver.gt(latestReleaseVersion, currentVersion);
 }
 
+console.log('Checking for an updated version.');
 fetch('https://api.github.com/repos/martinwheeler/dcs-data-visualiser/releases/latest').then(res => res.json()).then(handleUpdate);
