@@ -76,83 +76,42 @@ class App extends Component {
     });
 
     setInterval(() => {
-      const { labels, datasets, shouldPoll } = this.state;
+      const { shouldPoll } = this.state;
 
       if (shouldPoll) {
-        getData().then((newData) => {
-          console.log('Data Length: ', newData.length);
-
-          const newLabels = labels.concat(newData.map(data => data.timestamp));
-
-          const { newPitchDataset, newRollDataset, newYawDataset, newPitchRateDataset, newRollRateDataset, newYawRateDataset } = newData.reduce((result, nextData) => {
-            return {
-              ...result,
-              newPitchDataset: [...result.newPitchDataset, nextData.pitch],
-              newRollDataset: [...result.newRollDataset, nextData.roll],
-              newYawDataset: [...result.newYawDataset, nextData.yaw],
-              newPitchRateDataset: [...result.newPitchRateDataset, nextData.pitchRate],
-              newRollRateDataset: [...result.newRollRateDataset, nextData.rollRate],
-              newYawRateDataset: [...result.newYawRateDataset, nextData.yawRate],
-            };
-          }, { newPitchDataset: datasets[0].data, newRollDataset: datasets[1].data, newYawDataset: datasets[2].data, newPitchRateDataset: datasets[3].data, newRollRateDataset: datasets[4].data, newYawRateDataset: datasets[5].data });
-
-          const newDatasets = [
-            {
-              ...datasets[0],
-              data: newPitchDataset,
-            },
-            {
-              ...datasets[1],
-              data: newRollDataset,
-            },
-            {
-              ...datasets[2],
-              data: newYawDataset,
-            },
-            {
-              ...datasets[3],
-              data: newPitchRateDataset,
-            },
-            {
-              ...datasets[4],
-              data: newRollRateDataset,
-            },
-            {
-              ...datasets[5],
-              data: newYawRateDataset,
-            },
-          ];
-
-          this.setState({ labels: newLabels, datasets: newDatasets });
-        });
+        getData().then(this.mapDataToDataset);
       }
     }, POLL_TIMEOUT);
   }
 
   render() {
     const { shouldPoll } = this.state;
+    const chartOptions = {
+      animation: { duration: 0 },
+      hover: { animationDuration: 0 },
+      responsiveAnimationDuration: 0,
+      title: {
+        display: true,
+        text: `DCS Jet Positioning - ${shouldPoll ? "Running" : "Paused"}`,
+        fontSize: 20,
+      },
+      legend: {
+        display: true,
+        position: "right",
+      },
+      scales: {
+        xAxes: [{ type: "time", time: { unit: "minutes", stepSize: 1000 }, distribution: "series", ticks: { minRotation: 1000, maxRotation: 1000 } }]
+      },
+      tooltips: {
+        mode: 'index'
+      }
+    }
 
     return (
       <div className="App">
         <Line
           data={this.state}
-          options={{
-            animation: { duration: 0 },
-            hover: { animationDuration: 0 },
-            responsiveAnimationDuration: 0,
-            title: {
-              display: true,
-              text: `DCS Jet Positioning - ${shouldPoll ? "Running" : "Paused"}`,
-              fontSize: 20,
-            },
-            legend: {
-              display: true,
-              position: "right",
-            },
-            scales: {
-              xAxes: [{ type: "time", time: { unit: "millisecond", stepSize: 1000 }, distribution: "series", ticks: { minRotation: 1000, maxRotation: 1000 } }]
-            }
-          }}
+          options={chartOptions}
         />
         <div>Press Space to pause or resume fetching more results.</div>
       </div>
