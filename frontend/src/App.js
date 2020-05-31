@@ -3,6 +3,7 @@ import "./App.css";
 
 import { Line } from "react-chartjs-2";
 import randomColor from 'randomcolor'
+import msgpack from 'msgpack-lite'
 
 const getData = () => {
   return fetch("http://localhost:3000/data").then((response) =>
@@ -32,14 +33,14 @@ class App extends Component {
       labels: [],
       datasets: [],
       shouldPoll: true,
-      shouldPersist: true
+      shouldPersist: false
     };
 
     this.mapDataToDataset = this.mapDataToDataset.bind(this);
   }
 
   mapDataToDataset(newData) {
-    const { labels, datasets } = this.state;
+    const { labels, datasets, shouldPersist } = this.state;
 
     const newLabels = labels.concat(newData.map(data => data.timestamp));
     const newDatasets = datasets.reduce((result, currentDataset) => {
@@ -76,22 +77,50 @@ class App extends Component {
       });
     });
 
-    this.setState({ labels: newLabels, datasets: Object.values(newDatasets) });
+    
+    const data = Object.values(newDatasets);
+    this.setState({ labels: newLabels, datasets: data });
+
+    if (shouldPersist) {
+      const smallData = data.map(({data, label }) => ({ label, data: data.map(msgpack.encode) }));
+      localStorage.setItem('data', JSON.stringify(smallData))
+  
+      const smallLabels = labels.map(l => msgpack.encode(l));
+      localStorage.setItem('labels', JSON.stringify(smallLabels))
+    }
   }
 
   componentDidMount() {
+    const config = JSON.parse(localStorage.getItem('config')) || { shouldPersist: true, shouldPoll: true };
+    this.setState({ ...config });
+
     document.addEventListener("keypress", (e) => {
       // Space
       if (e.which === 32) {
         this.setState({ shouldPoll: !this.state.shouldPoll });
       }
-      if (e.which === 'P') {
+      if (e.which === 112) {
         this.setState({ shouldPersist: !this.state.shouldPersist });
       }
-      if (e.which === 'C') {
-        // TODO: Clear localStorage
+      if (e.which === 99) {
+        localStorage.setItem('data', '[]');
+        localStorage.setItem('labels', '[]');
+        this.setState({ labels: [], datasets: [] });
       }
+
+      localStorage.setItem('config', JSON.stringify({ shouldPersist: this.state.shouldPersist, shouldPoll: this.state.shouldPoll }))
     });
+
+    if (config.shouldPersist) {
+      const currentStorageData = JSON.parse(localStorage.getItem('data'));
+      const currentStorageLabels = JSON.parse(localStorage.getItem('labels'));
+  
+      if (currentStorageData && currentStorageLabels && currentStorageData.length && currentStorageLabels.length) {
+        const datasets = currentStorageData.map(({ label, data }) => ({ ...defaultDatasetOptions, label, data: data.map(d => msgpack.decode(d.data)), borderColor: getBorderColour(label), }))
+        const labels = currentStorageLabels.map(l => msgpack.decode(l.data));
+        this.setState({ labels, datasets });
+      }
+    }
 
     setInterval(() => {
       const { shouldPoll } = this.state;
@@ -103,14 +132,14 @@ class App extends Component {
   }
 
   render() {
-    const { shouldPoll } = this.state;
+    const { shouldPoll, shouldPersist } = this.state;
     const chartOptions = {
       animation: { duration: 0 },
       hover: { animationDuration: 0 },
       responsiveAnimationDuration: 0,
       title: {
         display: true,
-        text: `DCS Jet Positioning - ${shouldPoll ? "Running" : "Paused"}`,
+        text: `DCS Jet Positioning - ${shouldPoll ? "Running" : "Paused"} - ${shouldPersist ? "Persisting" : "Abandoning"}`,
         fontSize: 20,
       },
       legend: {
@@ -131,7 +160,16 @@ class App extends Component {
           data={this.state}
           options={chartOptions}
         />
-        <div>Press Space to pause or resume fetching more results.</div>
+        <div>
+          <div>Controls</div>
+          <div>
+            <ul>
+              <li>Space = Toggles Pause/Resume loading data from DCS</li>
+              <li>P = Toggles whether data should be persisted between page refresh</li>
+              <li>C = Clear the current data in the graph and any persisted data</li>
+            </ul>
+          </div>
+        </div>
       </div>
     );
   }
