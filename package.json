@@ -1,6 +1,6 @@
 {
   "name": "test",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "private": true,
   "scripts": {
     "install:all": "npm install && cd frontend && npm install",
